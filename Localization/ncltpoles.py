@@ -517,11 +517,15 @@ def evaluate():
 if __name__ == '__main__':
     poles.minscore = 0.6
     poles.polesides = range(1, 7+1)
-    #save_global_map()
+    save_global_map()
+    ###################################################################
     # TODO: Change this to the session you want to find trajectory for
     session = '2013-01-10'
-    #save_local_maps(session)
-    # Set visualization to False
+    ###################################################################
+    save_local_maps(session)
+    # Note: once the global map and the local map are generated, comment save_global_map() and save_local_maps()
+    # to rerun the localization
+    # Set visualization to False/True
     localize(session, True)
     plot_trajectories()
     evaluate()    
