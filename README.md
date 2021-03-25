@@ -1,8 +1,8 @@
 # ROB530_WN2021_Team13_Final_Project
 Final project of ROB 530, Team 13
 ![Particle-Filter on NCLT Dataset](https://github.com/ckhdd/ROB530_WN2021_Team13_Final_Project/blob/main/Localization/2013-01-10.gif)
-# Pre-requists and setting up environment
-Anaconda3
+# Prerequisites and setting up environment
+##Anaconda3
 1. create a anaconda environment with python version=2.7 and activate it 
 ```bash
 conda create -n py27 python=2.7 anaconda
@@ -13,7 +13,7 @@ conda activate py27
 pip2 install numpy matplotlib open3d-python progressbar2 pyquaternion transforms3d scipy scikit-image networkx psutil torch future imageio pytest
 conda list
 ```
-Set up Linux environment
+##Set up Linux environment
 ```bash
 sudo apt-get update 
 sudo apt-get install -y build-essential \
@@ -27,7 +27,7 @@ sudo apt-get install -y build-essential \
         git \
         cmake
 ```
-Build libraries from sources 
+##Build libraries from sources 
 
 1. Build Catch2
 ```bash
@@ -67,8 +67,8 @@ echo PYTHONPATH=$PYTHONPATH:/home/yourusername/library/ray_tracing/python >> ~/.
 echo $PYTHONPATH
 (you should see /home/yourusername/library/ray_tracing/python has been added to $PYTHONPATH)
 ```
-Modified the data path and session name in the pynclt.py and ncltpoles.py, see comments in these file.
-Run python file for localization
+##Modified the data path and session name in the pynclt.py and ncltpoles.py, see comments in these file.
+##Run python file for localization
 ```bash
 python2 ncltpoles.py
 ```
