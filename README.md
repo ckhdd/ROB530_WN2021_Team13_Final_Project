@@ -1,6 +1,6 @@
 # ROB530_WN2021_Team13_Final_Project
 Final project of ROB 530, Team 13
-![Alt Text](https://github.com/ckhdd/ROB530_WN2021_Team13_Final_Project/Localization/2013-01-10.gif)
+![Particle-Filter on NCLT Dataset](https://github.com/ckhdd/ROB530_WN2021_Team13_Final_Project/blob/main/Localization/2013-01-10.gif)
 # Pre-requists and setting up environment
 Anaconda3
 1. create a anaconda environment with python version=2.7
