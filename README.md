@@ -27,7 +27,7 @@ sudo apt-get install -y build-essential \
         git \
         cmake
 ```
-4. Build libraries from sources 
+4. Build libraries from sources \\
 (1) Build Catch2
 ```bash
 cd ~
