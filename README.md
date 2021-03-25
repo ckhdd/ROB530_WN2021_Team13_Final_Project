@@ -51,7 +51,7 @@ cmake .. && \
 make -j8 && \
 sudo make install
 ```
-(3) Build ray-tracing 
+(3) Build ray-tracing and add new path to PYTHONPATH
 ```bash
 cd ~/library && \
 git clone https://github.com/acschaefer/ray_tracing.git && \
@@ -60,5 +60,5 @@ cd ray_tracing/build && \
 cmake .. && \
 make -j8 && \
 sudo make install
-export PYTHONPATH=$PYTHONPATH:/home/yourusername/library/ray_tracing/python >>> ~/.bashrc
+echo PYTHONPATH=$PYTHONPATH:/home/yourusername/library/ray_tracing/python >> ~/.bashrc
 ```
