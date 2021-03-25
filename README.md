@@ -75,7 +75,7 @@ echo $PYTHONPATH
 
 ## Download dataset 
 ```bash
-python downloader.py --date="2013-01-10" --vel --gt --gt_cov --sensor
+python downloader.py --date="2013-01-10" --vel --gt --gt_cov --sen
 ```
 Change 2013-01-10 to download any dataset you want to work on.
 
