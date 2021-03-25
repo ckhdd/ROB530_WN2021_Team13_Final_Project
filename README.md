@@ -74,9 +74,14 @@ echo $PYTHONPATH
 4. In ncltpoles.py, replace '2021-03' in the variable 'localization_name_start'(line 31) to the yyyy-mm you are currently in.
 5. In ncltpoles.py, change the session(line 503) you are currently work on.     
 
-## Download dataset 
+## Download and unzip the dataset 
 ```bash
 python downloader.py --date="2013-01-10" --vel --gt --gt_cov --sen
+cd sensor_data
+tar xzf <sensors_data_file_name>
+cd ..
+cd velodyne_data
+tar xzf <velodyne_data_file_name>
 ```
 Change 2013-01-10 to download any dataset you want to work on.
 
