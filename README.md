@@ -13,7 +13,7 @@ conda activate py27
 pip2 install numpy matplotlib open3d-python progressbar2 pyquaternion transforms3d scipy scikit-image networkx psutil torch future imageio pytest
 conda list
 ```
-3. Set up Linux environment
+Set up Linux environment
 ```bash
 sudo apt-get update 
 sudo apt-get install -y build-essential \
@@ -27,9 +27,9 @@ sudo apt-get install -y build-essential \
         git \
         cmake
 ```
-4. Build libraries from sources 
+Build libraries from sources 
 
-(1) Build Catch2
+1. Build Catch2
 ```bash
 cd ~
 mkdir library
@@ -42,7 +42,7 @@ make -j8 && \
 sudo make install
 ```
 
-(2) Build Pybind11
+2. Build Pybind11
 ```bash
 cd ~/library && \
 git clone https://github.com/pybind/pybind11.git && \
@@ -52,7 +52,7 @@ cmake .. && \
 make -j8 && \
 sudo make install
 ```
-(3) Build ray-tracing and add new path to PYTHONPATH
+3. Build ray-tracing and add new path to PYTHONPATH
 ```bash
 cd ~/library && \
 git clone https://github.com/acschaefer/ray_tracing.git && \
@@ -67,4 +67,8 @@ echo PYTHONPATH=$PYTHONPATH:/home/yourusername/library/ray_tracing/python >> ~/.
 echo $PYTHONPATH
 (you should see /home/yourusername/library/ray_tracing/python has been added to $PYTHONPATH)
 ```
-
+Modified the data path and session name in the pynclt.py and ncltpoles.py, see comments in these file.
+Run python file for localization
+```bash
+python2 ncltpoles.py
+```
