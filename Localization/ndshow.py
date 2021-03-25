@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider
@@ -79,3 +78,6 @@ if __name__ == '__main__':
     matshow([np.random.rand(9, 11), np.random.rand(12, 12, 6)], 
         matnames=['9x11', '12x12x6'])
     matshow(np.random.rand(100, 100, 100))
+
+
+

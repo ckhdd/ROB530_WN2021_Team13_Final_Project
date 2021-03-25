@@ -176,7 +176,7 @@ class session:
 
             self.velorawfile = os.path.join(datadir, 'velodyne_data', 
                 self.session, 'velodyne_hits.bin')
-                #self.session + '_vel', 'velodyne_hits.bin')
+                
             self.t_rawvelo = []
             self.i_rawvelo = []
             with open(self.velorawfile, 'rb') as file:
@@ -218,7 +218,7 @@ class session:
                 ]], [6, 6]) for roc in cov_gt])
 
             sensordir = os.path.join(
-                datadir, 'sensor_data', self.session) # + '_sen')
+                datadir, 'sensor_data', self.session) 
             odofile = os.path.join(sensordir, 'odometry_mu_100hz.csv')
             ododata = np.genfromtxt(odofile, delimiter=csvdelimiter)
             self.t_odo = ododata[:, 0]
@@ -326,3 +326,6 @@ class session:
 if __name__ == '__main__':
     for s in sessions:
         session(s)
+
+
+

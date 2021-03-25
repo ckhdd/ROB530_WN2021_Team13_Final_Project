@@ -1,8 +1,8 @@
-#!/usr/bin/env python
 
 import networkx as nx
 import numpy as np
-
+import matplotlib.pyplot as plt
+import matplotlib.patches as pat
 
 def cluster_boxes(boxes):
     graph = nx.Graph()
@@ -55,8 +55,7 @@ if __name__ == '__main__':
         [18.48462587,  7.41137572, 19.03767023,  7.96442009],
         [ 2.69673224,  9.59842375,  3.32057219, 10.22226371]])
     
-    import matplotlib.pyplot as plt
-    import matplotlib.patches as pat
+  
     fig = plt.figure()
     ax = fig.add_subplot(111, aspect='equal')
     for b in boxes:
