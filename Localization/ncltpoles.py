@@ -504,21 +504,21 @@ if __name__ == '__main__':
     
     ###################################################################
     # Task 1
-    #save_global_map()
+    save_global_map()
     ###################################################################
     
     ###################################################################
     # Task 2
-    #save_local_maps(session)
+    save_local_maps(session)
     ###################################################################
     # Note: once the global map and the local map are generated, comment Task1 and Task2
     # to rerun the localization
 
     ###################################################################
     # Task 3
-    # Set visualization to False/True
-    #localize(session, True)
-    #plot_trajectories()
+    # Set visualization to True to generate visualizaiton and gif
+    localize(session, True)
+    plot_trajectories()
     
     ###################################################################
 
@@ -533,7 +533,7 @@ if __name__ == '__main__':
 
     ###################################################################
     # Task 5
-    #evaluate()    
+    evaluate()    
     ###################################################################
 
 
