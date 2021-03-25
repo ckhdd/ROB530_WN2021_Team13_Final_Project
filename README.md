@@ -67,7 +67,18 @@ echo PYTHONPATH=$PYTHONPATH:/home/yourusername/library/ray_tracing/python >> ~/.
 echo $PYTHONPATH
 (you should see /home/yourusername/library/ray_tracing/python has been added to $PYTHONPATH)
 ```
-Modified the data path and session name in the pynclt.py and ncltpoles.py, see comments in these file.
+## Modify the data path and session name in the pynclt.py and ncltpoles.py (see comments in these two files).
+1. In pynclt.py, change variable 'datadir'(line 23) to the directory of your downloaded dataset
+2. In pynclt.py, comment out the seesions(line 30-56) you are not using. (In the provided exaple, we are using '2013-01-10') 
+3. In ncltpoles.py, replace '2021-03' in the variable 'localization_name_start'(line 31) to the yyyy-mm you are currently in.
+4. In ncltpoles.py, change the session(line 503) you are currently work on.     
+
+## Download dataset 
+```bash
+python downloader.py --date="2013-01-10" --vel --gt --gt_cov --sensor
+```
+Change 2013-01-10 to download any dataset you want to work on.
+
 ## Run python file for localization
 ```bash
 python2 ncltpoles.py
