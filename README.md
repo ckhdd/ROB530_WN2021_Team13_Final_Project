@@ -60,5 +60,10 @@ cd ray_tracing/build && \
 cmake .. && \
 make -j8 && \
 sudo make install
-echo PYTHONPATH=$PYTHONPATH:/home/yourusername/library/ray_tracing/python >> ~/.bashrc
 ```
+```bash
+echo PYTHONPATH=$PYTHONPATH:/home/yourusername/library/ray_tracing/python >> ~/.bashrc
+echo $PYTHONPATH
+(you should see /home/yourusername/library/ray_tracing/python has been added to $PYTHONPATH)
+```
+
