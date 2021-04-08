@@ -1,5 +1,7 @@
+#!/usr/bin/env python
 
 import os
+
 import numpy as np
 import open3d as o3
 import transforms3d as t3
@@ -85,8 +87,3 @@ def makedirs(dir):
         os.makedirs(dir)
     except:
         pass
-
-
-
-
-

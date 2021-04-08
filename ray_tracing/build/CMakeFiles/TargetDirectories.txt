@@ -1,0 +1,7 @@
+/home/atishays/530Final/ray_tracing/build/CMakeFiles/install/strip.dir
+/home/atishays/530Final/ray_tracing/build/CMakeFiles/edit_cache.dir
+/home/atishays/530Final/ray_tracing/build/CMakeFiles/ray_tracing_python.dir
+/home/atishays/530Final/ray_tracing/build/CMakeFiles/rebuild_cache.dir
+/home/atishays/530Final/ray_tracing/build/CMakeFiles/list_install_components.dir
+/home/atishays/530Final/ray_tracing/build/CMakeFiles/install/local.dir
+/home/atishays/530Final/ray_tracing/build/CMakeFiles/install.dir

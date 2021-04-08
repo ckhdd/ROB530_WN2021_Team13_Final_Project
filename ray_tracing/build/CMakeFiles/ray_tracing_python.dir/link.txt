@@ -1,0 +1,1 @@
+/usr/bin/c++ -fPIC  -pthread -Wall -Wextra  -shared  -o ray_tracing_python.cpython-38-x86_64-linux-gnu.so CMakeFiles/ray_tracing_python.dir/cpp/ray_tracing_python.cpp.o -flto 

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 
 import numpy as np
 import scipy.stats
@@ -72,9 +73,8 @@ def detect_poles(occupancymap, mapsize):
             z = zmax[iix, iiy]
             poleness[iix, iiy] = np.mean(accuscore[z:z+h, iix, iiy])
 
-    peaks = skimage.feature.peak_local_max(
-        poleness, min_distance=f, exclude_border=False, indices=False)
-    label = skimage.measure.label(peaks, neighbors=8, background=False)
+    peaks = skimage.feature.peak_local_max(poleness, min_distance=f, exclude_border=False, indices=False)
+    label = skimage.measure.label(peaks, background=False)
     regions = skimage.measure.regionprops(label, coordinates='rc')
     centroids = np.array([r.centroid for r in regions]) + 0.5
 

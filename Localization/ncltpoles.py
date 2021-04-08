@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 
 import copy
 import datetime
@@ -7,9 +8,6 @@ import shutil
 
 import matplotlib.patches
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-import matplotlib.animation as animation
-
 import numpy as np
 import open3d as o3
 import progressbar
@@ -23,12 +21,12 @@ import particlefilter
 import poles
 import pynclt
 import util
-import makegif as mkgif
-import sys
 
 
-# TODO: UPDATE THIS!
-localization_name_start = 'localization_3_6_7_2021-03'
+plt.rcParams['text.latex.preamble']=[r'\usepackage{lmodern}']
+params = {'text.usetex': True,
+          'font.size': 16,
+          'font.family': 'lmodern'}
 
 mapextent = np.array([30.0, 30.0, 5.0])
 mapsize = np.full(3, 0.2)
@@ -122,8 +120,8 @@ def save_global_map():
                 scans = []
                 for iscan in range(istart[imap], iend[imap]):
                     xyz, _ = session.get_velo(iscan)
-                    scan = o3.PointCloud()
-                    scan.points = o3.Vector3dVector(xyz)
+                    scan = o3.geometry.PointCloud()
+                    scan.points = o3.utility.Vector3dVector(xyz)
                     scans.append(scan)
                 
                 T_w_mc = np.identity(4)
@@ -152,7 +150,7 @@ def save_global_map():
             poleparams[ci, :-1], axis=0, weights=poleparams[ci, -1])])
         scores.append(np.mean(poleparams[ci, -1]))
     clustermeans = np.hstack([clustermeans, np.array(scores).reshape([-1, 1])])
-    globalmapfile = os.path.join(pynclt.resultdir, get_globalmapname() + '.npz')
+    globalmapfile = os.path.join('nclt', get_globalmapname() + '.npz')
     np.savez(globalmapfile, 
         polemeans=clustermeans, mapfactors=mapfactors, mappos=globalmappos)
     plot_global_map(globalmapfile)
@@ -162,13 +160,12 @@ def plot_global_map(globalmapfile):
     data = np.load(globalmapfile)
     x, y = data['polemeans'][:, :2].T
     plt.clf()
-    # plt.rcParams.update(params)
+    plt.rcParams.update(params)
     plt.scatter(x, y, s=1, c='b', marker='.')
     plt.xlabel('x [m]')
     plt.ylabel('y [m]')
     plt.savefig(globalmapfile[:-4] + '.svg')
-    plt.savefig(globalmapfile[:-4] + '.png')
-    # plt.savefig(globalmapfile[:-4] + '.pgf')
+    plt.savefig(globalmapfile[:-4] + '.pgf')
     print(data['mapfactors'])
 
 
@@ -224,7 +221,7 @@ def save_local_maps(sessionname, visualize=False):
 
 
 def view_local_maps(sessionname):
-    sessiondir = os.path.join(pynclt.resultdir, sessionname)
+    sessiondir = os.path.join('nclt', sessionname)
     session = pynclt.session(sessionname)
     maps = np.load(os.path.join(sessiondir, get_localmapfile()))['maps']
     for i, map in enumerate(maps):
@@ -256,14 +253,14 @@ def view_local_maps(sessionname):
 
 
 def evaluate_matches():
-    mapdata = np.load(os.path.join(pynclt.resultdir, get_globalmapname() + '.npz'))
+    mapdata = np.load(os.path.join('nclt', get_globalmapname() + '.npz'))
     polemap = mapdata['polemeans'][:, :2]
     kdtree = scipy.spatial.cKDTree(polemap[:, :2], leafsize=10)
     maxdist = 0.5
     n_matches = np.zeros(len(pynclt.sessions))
     n_all = np.zeros(len(pynclt.sessions))
     for i, sessionname in enumerate(pynclt.sessions):
-        sessiondir = os.path.join(pynclt.resultdir, sessionname)
+        sessiondir = os.path.join('nclt', sessionname)
         session = pynclt.session(sessionname)
         maps = np.load(os.path.join(sessiondir, get_localmapfile()))['maps']
         for map in maps:
@@ -287,15 +284,11 @@ def evaluate_matches():
 
 def localize(sessionname, visualize=False):
     print(sessionname)
-    mapdata = np.load(os.path.join(pynclt.resultdir, get_globalmapname() + '.npz'))
+    mapdata = np.load(os.path.join('nclt', get_globalmapname() + '.npz'))
     polemap = mapdata['polemeans'][:, :2]
     polevar = 1.50
     session = pynclt.session(sessionname)
-    figuresdir = os.path.join(
-		pynclt.resultdir, session.dir, 'Figures_{:.0f}_{:.0f}_{:.0f}'.format(
-                n_mapdetections, 10 * poles.minscore, poles.polesides[-1]))
-    util.makedirs(figuresdir)
-    locdata = np.load(os.path.join(session.dir, get_localmapfile()), allow_pickle=True)['maps']
+    locdata = np.load(os.path.join(session.dir, get_localmapfile()))['maps']
     polepos_m = []
     polepos_w = []
     for i in range(len(locdata)):
@@ -304,7 +297,10 @@ def localize(sessionname, visualize=False):
         polepos_m.append(np.hstack([locdata[i]['poleparams'][:, :2], pad]).T)
         polepos_w.append(locdata[i]['T_w_m'].dot(polepos_m[i]))
     istart = 0
-   
+    # igps = np.searchsorted(session.t_gps, session.t_relodo[istart]) + [-4, 1]
+    # igps = np.clip(igps, 0, session.gps.shape[0] - 1)
+    # T_w_r_start = pynclt.T_w_o
+    # T_w_r_start[:2, 3] = np.mean(session.gps[igps], axis=0)
     T_w_r_start = util.project_xy(
         session.get_T_w_r_gt(session.t_relodo[istart]).dot(T_r_mc)).dot(T_mc_r)
     filter = particlefilter.particlefilter(5000, 
@@ -322,17 +318,25 @@ def localize(sessionname, visualize=False):
         x_gt, y_gt = session.T_w_r_gt[::20, :2, 3].T
         mapaxes.plot(x_gt, y_gt, 'g')
         particles = mapaxes.scatter([], [], s=1, c='r')
-        arrow = mapaxes.arrow(0.0, 0.0, 4.0, 0.0, length_includes_head=True, 
-            head_width=1.2, head_length=1.5, color='k')
+        arrow = mapaxes.arrow(0.0, 0.0, 1.0, 0.0, length_includes_head=True, 
+            head_width=0.7, head_length=1.0, color='k')
         arrowdata = np.hstack(
             [arrow.get_xy(), np.zeros([8, 1]), np.ones([8, 1])]).T
-        locpoles = mapaxes.scatter([], [], s=30, c='y', marker='^')
+        locpoles = mapaxes.scatter([], [], s=30, c='k', marker='x')
         viewoffset = 25.0
-        
 
-
-
-
+        # weightaxes = figure.add_subplot(nplots, 1, 2)
+        # gridsize = 50
+        # offset = 5.0
+        # visfilter = particlefilter.particlefilter(gridsize**2, 
+        #     np.identity(4), 0.0, 0.0, polemap, 
+        #     polevar, T_w_o=pynclt.T_w_o)
+        # gridcoord = np.linspace(-offset, offset, gridsize)
+        # x, y = np.meshgrid(gridcoord, gridcoord)
+        # dxy = np.hstack([x.reshape([-1, 1]), y.reshape([-1, 1])])
+        # weightimage = weightaxes.matshow(np.zeros([gridsize, gridsize]), 
+        #     extent=(-offset, offset, -offset, offset))
+        # histaxes = figure.add_subplot(nplots, 1, 3)
 
     imap = 0
     while imap < locdata.shape[0] - 1 and \
@@ -362,7 +366,8 @@ def localize(sessionname, visualize=False):
                         if len(ci) >= n_locdetections:
                             iactive |= set(ipoles) & ci
                     iactive = list(iactive)
-
+                    # print('{}.'.format(
+                    #     len(iactive) - polepos_w[imap].shape[1]))
                     if iactive:
                         t_mid = session.t_velo[locdata[imap]['imid']]
                         T_w_r_mid = util.project_xy(session.get_T_w_r_odo(
@@ -378,7 +383,18 @@ def localize(sessionname, visualize=False):
                             polepos_w_est = T_w_r_est[i].dot(polepos_r_now)
                             locpoles.set_offsets(polepos_w_est[:2].T)
 
-                            
+                            # T_w_r_gt_now = session.get_T_w_r_gt(t_now)
+                            # T_w_r_gt_now = np.tile(
+                            #     T_w_r_gt_now, [gridsize**2, 1, 1])
+                            # T_w_r_gt_now[:, :2, 3] += dxy
+                            # visfilter.particles = T_w_r_gt_now
+                            # visfilter.weights[:] = 1.0 / visfilter.count
+                            # visfilter.update_measurement(
+                            #     polepos_r_now[:2].T, resample=False)
+                            # weightimage.set_array(np.flipud(
+                            #     visfilter.weights.reshape(
+                            #         [gridsize, gridsize])))
+                            # weightimage.autoscale()
                     imap += 1
             
             if visualize:
@@ -387,10 +403,9 @@ def localize(sessionname, visualize=False):
                 x, y = T_w_r_est[i, :2, 3]
                 mapaxes.set_xlim(left=x - viewoffset, right=x + viewoffset)
                 mapaxes.set_ylim(bottom=y - viewoffset, top=y + viewoffset)
-		# Save figures for generating GIF
-		if i % 25 == 0:
-			filename = sessionname +'_'+str(i) + '_'		
-			figure.savefig(os.path.join(figuresdir, filename + '.png'))
+                # histaxes.cla()
+                # histaxes.hist(filter.weights, 
+                #     bins=50, range=(0.0, np.max(filter.weights)))
                 figure.canvas.draw_idle()
                 figure.canvas.flush_events()
             bar.update(i)
@@ -403,19 +418,19 @@ def plot_trajectories():
     trajectorydir = os.path.join(
         pynclt.resultdir, 'trajectories_est_{:.0f}_{:.0f}_{:.0f}'.format(
             n_mapdetections, 10 * poles.minscore, poles.polesides[-1]))
-    # pgfdir = os.path.join(trajectorydir, 'pgf')
+    pgfdir = os.path.join(trajectorydir, 'pgf')
     util.makedirs(trajectorydir)
-    # util.makedirs(pgfdir)
-    mapdata = np.load(os.path.join(pynclt.resultdir, get_globalmapname() + '.npz'))
+    util.makedirs(pgfdir)
+    mapdata = np.load(os.path.join('nclt', get_globalmapname() + '.npz'))
     polemap = mapdata['polemeans']
-    # plt.rcParams.update(params)
+    plt.rcParams.update(params)
     for sessionname in pynclt.sessions:
         try:
             session = pynclt.session(sessionname)
             files = [file for file \
                 in os.listdir(os.path.join(pynclt.resultdir, sessionname)) \
-                    if file.startswith(localization_name_start)]
-                    
+                    if file.startswith('localization_3_6_7_2019-07')]
+                    # if file.startswith(get_locfileprefix())]
             for file in files:
                 T_w_r_est = np.load(os.path.join(
                     pynclt.resultdir, sessionname, file))['T_w_r_est']
@@ -431,8 +446,7 @@ def plot_trajectories():
                     bottom=0.13, top=0.98, left=0.145, right=0.98)
                 filename = sessionname + file[18:-4]
                 plt.savefig(os.path.join(trajectorydir, filename + '.svg'))
-		plt.savefig(os.path.join(trajectorydir, filename + '.png'))
-                # plt.savefig(os.path.join(pgfdir, filename + '.pgf'))
+                plt.savefig(os.path.join(pgfdir, filename + '.pgf'))
         except:
             pass
 
@@ -442,7 +456,7 @@ def evaluate():
     for sessionname in pynclt.sessions:
         files = [file for file \
             in os.listdir(os.path.join(pynclt.resultdir, sessionname)) \
-                if file.startswith(localization_name_start)]
+                if file.startswith('localization_3_6_7_2019-07')]
                 # if file.startswith(get_locfileprefix())]
         files.sort()
         session = pynclt.session(sessionname)
@@ -482,7 +496,7 @@ def evaluate():
             'angerror': angerror, 'angrmse': angrmse, 'T_gt_est': T_gt_est})
     np.savez(os.path.join(pynclt.resultdir, get_evalfile()), stats=stats)
     
-    mapdata = np.load(os.path.join(pynclt.resultdir, get_globalmapname() + '.npz'))
+    mapdata = np.load(os.path.join('nclt', get_globalmapname() + '.npz'))
     print('session \t f\te_pos \trmse_pos \te_ang \te_rmse')
     row = '{session} \t{f} \t{poserror} \t{posrmse} \t{angerror} \t{angrmse}'
     for i, stat in enumerate(stats):
@@ -498,49 +512,9 @@ def evaluate():
 if __name__ == '__main__':
     poles.minscore = 0.6
     poles.polesides = range(1, 7+1)
-
-    # TODO: Change this to the session you want to find trajectory for
-    session = '2013-01-10'
-    
-    ###################################################################
-    # Task 1
     save_global_map()
-    ###################################################################
-    
-    ###################################################################
-    # Task 2
+    session = '2013-01-10'
     save_local_maps(session)
-    ###################################################################
-    # Note: once the global map and the local map are generated, comment Task1 and Task2
-    # to rerun the localization
-
-    ###################################################################
-    # Task 3
-    # Set visualization to True to generate visualizaiton and gif
-    localize(session, True)
+    localize(session)
     plot_trajectories()
-    
-    ###################################################################
-
-    ###################################################################
-    # Task 4
-    gif_name = session
-    png_dir  = os.path.join(
-		pynclt.resultdir, session, 'Figures_{:.0f}_{:.0f}_{:.0f}'.format(
-                n_mapdetections, 10 * poles.minscore, poles.polesides[-1]))
-    mkgif.generate_gif(gif_name, png_dir, dpi=90) 
-    ###################################################################
-
-    ###################################################################
-    # Task 5
     evaluate()    
-    ###################################################################
-
-
-
-
-
-
-
-
-
