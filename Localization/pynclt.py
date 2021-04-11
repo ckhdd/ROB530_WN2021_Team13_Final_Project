@@ -20,8 +20,8 @@ eulerdef = 'sxyz'
 
 # TODO: Modify these for your workspace
 csvdelimiter = ','
-datadir = '/home/kaicheng/ROB530_Final_Project_Team13/Localization/dataset/data/'
-resultdir = '/home/kaicheng/ROB530_Final_Project_Team13/Localization/dataset/nclt'
+datadir = '/home/kaicheng/ROB530_WN2021_Team13_Final_Project/Localization/dataset/data/'
+resultdir = '/home/kaicheng/ROB530_WN2021_Team13_Final_Project/Localization/dataset/nclt'
 snapshotfile = 'snapshot.npz'
 sessionfile = 'sessiondata.npz'
 
