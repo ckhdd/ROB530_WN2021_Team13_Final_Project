@@ -35,17 +35,19 @@ In addition, it comes with Python bindings via [pybind11](https://pybind11.readt
     sudo make install
     ```
 
-2. Download and compile the repository.
+2. Depends on the python version you are using, you will have to modify the CMakeLists.txt 
+
+   (1) Change PYTHON_EXECUTABLE to the path that the python you are using locates. For example, we create a python3.6 environment named py36 via anaconda3 in Unbuntu 16.04 for the test and we set the PYTHON_EXECUTABLE as the following
+   ``` /home/youusername/anaconda3/envs/py36/bin/python ```
    
+   (2) Change ``${CMAKE_BINARY_DIR}`` to the file name of .so binary file corresponding to your python version, for example, `ray_tracing_python.cpython-36m-x86_64-linux-gnu.so` for python 3.6.10, `ray_tracing_python.cpython-38-x86_64-linux-gnu.so` for python 3.8.5.
+
+3. Compile the repository.
+  
     ```bash
-    git clone https://github.com/acschaefer/ray_tracing.git
     mkdir ray_tracing/build && cd ray_tracing/build
     cmake ..
     make -j8
     sudo make install
     ```
 
-3. If you are in C++, use the function `trace_rays()` in the file [`ray_tracing.hpp`](cpp/ray_tracing.hpp) to find out by how many rays each grid cell is hit.
-4. If you are in Python, install the library via the CMake file and use one of the functions `raytracing.trace1d`, `raytracing.trace2d`, and `raytracing.trace3d`, defined in [`raytracing.py`](python/raytracing/raytracing.py).
-
-Also have a look at the test cases to verify your installation and to further familiarize yourself with the functions.
