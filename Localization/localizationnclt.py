@@ -528,7 +528,7 @@ if __name__ == '__main__':
 
     ###################################################################
     # Task 4
-    gif_name = session
+    gif_name = session + '.gif'
     png_dir  = os.path.join(
 		pynclt.resultdir, session, 'Figures_{:.0f}_{:.0f}_{:.0f}'.format(
                 n_mapdetections, 10 * poles.minscore, poles.polesides[-1]))
