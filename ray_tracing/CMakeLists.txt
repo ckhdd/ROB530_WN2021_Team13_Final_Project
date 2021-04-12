@@ -9,7 +9,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -Wall -Wextra")
 
 find_package(Catch2 REQUIRED)
 
-set(PYTHON_EXECUTABLE /home/atishays/anaconda3/envs/projEnv/bin/python)
+#set(PYTHON_EXECUTABLE /usr/bin/python3)
 find_package(pybind11 REQUIRED)
 
 pybind11_add_module(ray_tracing_python cpp/ray_tracing_python.cpp)
