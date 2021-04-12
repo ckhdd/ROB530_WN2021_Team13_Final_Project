@@ -88,5 +88,5 @@ Change 2013-01-10 to download any dataset you want to work on.
 
 ## Run python file for localization
 ```bash
-python2 ncltpoles.py
+python localiztionnclt.py
 ```
