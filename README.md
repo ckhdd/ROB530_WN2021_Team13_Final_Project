@@ -1,6 +1,10 @@
 # ROB530_WN2021_Team13_Final_Project
 Final project of ROB 530, Team 13
 ![Particle-Filter on NCLT Dataset](https://github.com/ckhdd/ROB530_WN2021_Team13_Final_Project/blob/python3_update/Localization/2013-01-10.gif)
+
+![Global map](https://github.com/ckhdd/ROB530_WN2021_Team13_Final_Project/blob/python3_update/results/2012-01-15/globalmap_3_6_7.png)
+
+![Estimated Trajectory](https://github.com/ckhdd/ROB530_WN2021_Team13_Final_Project/blob/python3_update/results/2012-01-15/2012-01-15_2021-04-13_04-00-27.png)
 # Prerequisites and setting up environment
 ## Anaconda3
 
