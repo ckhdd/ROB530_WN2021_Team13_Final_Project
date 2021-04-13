@@ -124,8 +124,8 @@ def save_global_map():
                 scans = []
                 for iscan in range(istart[imap], iend[imap]):
                     xyz, _ = session.get_velo(iscan)
-                    scan = o3.geometry.PointCloud()
-                    scan.points = o3.utility.Vector3dVector(xyz)
+                    scan = o3.PointCloud()
+                    scan.points = o3.Vector3dVector(xyz)
                     scans.append(scan)
                 
                 T_w_mc = np.identity(4)
