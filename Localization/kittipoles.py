@@ -14,7 +14,7 @@ import cluster
 import kittiwrapper
 import mapping
 import particlefilter
-import poles
+import polesdetection as poles
 import util
 import makegif as mkgif
 
@@ -201,8 +201,7 @@ def localize(seq, visualize=False):
     mapdata = np.load(os.path.join(seqdir, globalmapfile), allow_pickle=True)
     polemap = mapdata['polemeans']
     polemap = np.hstack([polemap[:, :2], np.diff(polemap[:, 2:4], axis=1)])
-    figuresdir = os.path.join(seqdir, 'Figures_{:.0f}_{:.0f}_{:.0f}'.format(
-                n_mapdetections, 10 * poles.minscore, poles.polesides[-1]))
+    figuresdir = os.path.join(seqdir, 'Figures')
     util.makedirs(figuresdir)
     locdata = np.load(os.path.join(seqdir, localmapfile), allow_pickle=True)['maps']
     T_velo_cam0 = util.invert_ht(sequence.calib.T_cam0_velo)
@@ -398,13 +397,13 @@ if __name__ == '__main__':
     seq = 0
 
     ##Make local Maps
-    save_local_maps(seq)
+    # save_local_maps(seq)
 
     ##Make globals map
-    save_global_map(seq)
+    # save_global_map(seq)
 
     ##Localization##
-    localize(seq, visualize=True)
+    # localize(seq, visualize=True)
 
     ##Generate
     seqdir = os.path.join(result_dir, '{:03d}'.format(seq))
