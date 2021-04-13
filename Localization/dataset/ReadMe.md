@@ -11,6 +11,7 @@ cd ..
 cd velodyne_data
 tar xzf <velodyne_data_file_name>
 ```
+Change 2013-01-10 to download any dataset you want to work on.
 
 # Kitti Dataset
 
