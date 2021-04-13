@@ -10,12 +10,12 @@ Final project of ROB 530, Team 13
 
 1. create a anaconda environment with python version=2.7 and activate it 
 ```bash
-conda create -n py27 python=2.7 anaconda
-conda activate py27
+conda create -n py3 python=3.6 anaconda
+conda activate py3
 ```
 2. Install the following pakage with pip in anaconda and check if they are installed correctly
 ```bash
-pip2 install numpy matplotlib open3d-python progressbar2 pyquaternion transforms3d scipy scikit-image networkx psutil torch future imageio pytest
+pip3 install numpy matplotlib open3d progressbar2 pyquaternion transforms3d scipy scikit-image networkx psutil torch future imageio pytest
 conda list
 ```
 ## Set up Linux environment
@@ -32,6 +32,11 @@ sudo apt-get install -y build-essential \
         git \
         cmake
 ```
+For running the code with KITTI dataset, there are some additional dependancies:
+```
+pip3 install opencv-python kittipy arrow
+```
+
 ## Build libraries from sources 
 
 1. Build Catch2
@@ -57,10 +62,8 @@ cmake .. && \
 make -j8 && \
 sudo make install
 ```
-3. Build ray-tracing and add new path to PYTHONPATH
+3. Build ray-tracing and add new path to PYTHONPATH - clone it from our repo because we modified it to work with python3 and then build
 ```bash
-cd ~/library && \
-git clone https://github.com/acschaefer/ray_tracing.git && \
 mkdir ray_tracing/build && \
 cd ray_tracing/build && \
 cmake .. && \
@@ -77,20 +80,18 @@ echo $PYTHONPATH
 2. In pynclt.py, change variable 'datadir'(line 23) to the directory of your downloaded dataset
 3. In pynclt.py, comment out the seesions(line 30-56) you are not using. (In the provided exaple, we are using '2013-01-10') 
 4. In ncltpoles.py, replace '2021-03' in the variable 'localization_name_start'(line 31) to the yyyy-mm you are currently in.
-5. In ncltpoles.py, change the session(line 503) you are currently work on.     
+5. In ncltpoles.py, change the session(line 503) you are currently work on.
 
-## Download and unzip the dataset 
-```bash
-python downloader.py --date="2013-01-10" --vel --gt --gt_cov --sen
-cd sensor_data
-tar xzf <sensors_data_file_name>
-cd ..
-cd velodyne_data
-tar xzf <velodyne_data_file_name>
-```
+
 Change 2013-01-10 to download any dataset you want to work on.
 
-## Run python file for localization
+## Run python file for localization on NCLT
 ```bash
 python localiztionnclt.py
 ```
+
+## Run python file for localization on KITTI
+```bash
+python3 kittipoles.py
+```
+
