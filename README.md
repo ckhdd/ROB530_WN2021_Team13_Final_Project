@@ -90,7 +90,7 @@ Change 2013-01-10 to download any dataset you want to work on.
 python localiztionnclt.py
 ```
 
-## Run python file for localization on NCLT
+## Run python file for localization on KITTI
 ```bash
 python3 kittipoles.py
 ```
