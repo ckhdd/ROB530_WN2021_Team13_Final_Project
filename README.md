@@ -82,9 +82,6 @@ echo $PYTHONPATH
 4. In ncltpoles.py, replace '2021-03' in the variable 'localization_name_start'(line 31) to the yyyy-mm you are currently in.
 5. In ncltpoles.py, change the session(line 503) you are currently work on.
 
-
-Change 2013-01-10 to download any dataset you want to work on.
-
 ## Run python file for localization on NCLT
 ```bash
 python localiztionnclt.py
