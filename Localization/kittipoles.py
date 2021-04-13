@@ -16,15 +16,26 @@ import mapping
 import particlefilter
 import poles
 import util
+import makegif as mkgif
 
 
-dataset = kittiwrapper.kittiwrapper('/app/data/datasets/kitti')
-
-mapextent = np.array([30.0, 30.0, 3.0])
+dataset = kittiwrapper.kittiwrapper('/app/dataset/kitti_data')
+result_dir = '/app/dataset/kitti'
+mapextent = np.array([30.0, 30.0, 5.0])
 mapsize = np.full(3, 0.1)
 mapshape = np.array(mapextent / mapsize, dtype=np.int)
-mapinterval = 3.0
-mapdistance = 5.0
+# mapinterval = 3.0
+# mapdistance = 5.0
+mapinterval = 1.5
+mapdistance = 1.5
+remapdistance = 10.0
+n_mapdetections = 3
+n_locdetections = 2
+n_localmaps = 3
+
+poles.minscore = 0.6
+poles.minheight = 1.0
+poles.freelength = 0.5
 poles.polesides = range(1, 11)
 
 T_mc_cam0 = np.identity(4)
@@ -67,7 +78,7 @@ def get_map_indices(sequence):
 def save_local_maps(seq):
     print(seq)
     sequence = dataset.sequence(seq)
-    seqdir = os.path.join('kitti', '{:03d}'.format(seq))
+    seqdir = os.path.join(result_dir, '{:03d}'.format(seq))
     util.makedirs(seqdir)
     istart, imid, iend = get_map_indices(sequence)
     maps = []
@@ -109,8 +120,8 @@ def save_local_maps(seq):
 
 def view_local_maps(seq):
     sequence = dataset.sequence(seq)
-    seqdir = os.path.join('kitti', '{:03d}'.format(seq))
-    with np.load(os.path.join(seqdir, localmapfile)) as data:
+    seqdir = os.path.join(result_dir, '{:03d}'.format(seq))
+    with np.load(os.path.join(seqdir, localmapfile), allow_pickle=True) as data:
         for i, map in enumerate(data['maps']):
             T_w_m = sequence.poses[map['imid']].dot(T_cam0_mc).dot(T_mc_m)
             mapboundsvis = util.create_wire_box(mapextent, [0.0, 0.0, 1.0])
@@ -142,11 +153,11 @@ def view_local_maps(seq):
 
 def save_global_map(seq):
     sequence = dataset.sequence(seq)
-    seqdir = os.path.join('kitti', '{:03d}'.format(seq))
+    seqdir = os.path.join(result_dir, '{:03d}'.format(seq))
     util.makedirs(seqdir)
     istart, imid, iend = get_map_indices(sequence)
     poleparams = np.empty([0, 6])
-    with np.load(os.path.join(seqdir, localmapfile)) as data:
+    with np.load(os.path.join(seqdir, localmapfile), allow_pickle=True) as data:
         for i, map in enumerate(data['maps']):
             T_w_m = sequence.poses[map['imid']].dot(T_cam0_mc).dot(T_mc_m)
             localpoleparams = map['poleparams']
@@ -177,7 +188,7 @@ def save_global_map(seq):
 
 def view_global_map(seq):
     seqdir = '{:03d}'.format(seq)
-    with np.load(os.path.join('kitti', seqdir, globalmapfile)) as data:
+    with np.load(os.path.join(result_dir, seqdir, globalmapfile), allow_pickle=True) as data:
         xy = data['polemeans'][:, :2]
         plt.scatter(xy[:, 0], xy[:, 1], s=5, c='b', marker='s')
         plt.show()
@@ -186,11 +197,14 @@ def view_global_map(seq):
 def localize(seq, visualize=False):
     print(seq)
     sequence = dataset.sequence(seq)
-    seqdir = os.path.join('kitti', '{:03d}'.format(seq))
-    mapdata = np.load(os.path.join(seqdir, globalmapfile))
+    seqdir = os.path.join(result_dir, '{:03d}'.format(seq))
+    mapdata = np.load(os.path.join(seqdir, globalmapfile), allow_pickle=True)
     polemap = mapdata['polemeans']
     polemap = np.hstack([polemap[:, :2], np.diff(polemap[:, 2:4], axis=1)])
-    locdata = np.load(os.path.join(seqdir, localmapfile))['maps']
+    figuresdir = os.path.join(seqdir, 'Figures_{:.0f}_{:.0f}_{:.0f}'.format(
+                n_mapdetections, 10 * poles.minscore, poles.polesides[-1]))
+    util.makedirs(figuresdir)
+    locdata = np.load(os.path.join(seqdir, localmapfile), allow_pickle=True)['maps']
     T_velo_cam0 = util.invert_ht(sequence.calib.T_cam0_velo)
     T_w_velo_gt = np.matmul(sequence.poses, sequence.calib.T_cam0_velo)
     i = 0
@@ -206,26 +220,26 @@ def localize(seq, visualize=False):
         nplots = 2
         mapaxes = figure.add_subplot(nplots, 1, 1)
         mapaxes.set_aspect('equal')
-        mapaxes.scatter(polemap[:, 0], polemap[:, 1], s=5, c='b', marker='s')
+        mapaxes.scatter(polemap[:, 0], polemap[:, 1], s=10, c='b', marker='s')
         mapaxes.plot(T_w_velo_gt[:, 0, 3], T_w_velo_gt[:, 1, 3], 'g')
         particles = mapaxes.scatter([], [], s=1, c='r')
-        arrow = mapaxes.arrow(0.0, 0.0, 3.0, 0.0, length_includes_head=True, 
-            head_width=2.1, head_length=3.0, color='k')
+        arrow = mapaxes.arrow(0.0, 0.0, 4.0, 0.0, length_includes_head=True, 
+            head_width=1.2, head_length=1.5, color='k')
         arrowdata = np.hstack(
             [arrow.get_xy(), np.zeros([8, 1]), np.ones([8, 1])]).T
-        locpoles = mapaxes.scatter([], [], s=30, c='k', marker='x')
+        locpoles = mapaxes.scatter([], [], s=30, c='y', marker='^')
         viewoffset = 25.0
 
-        weightaxes = figure.add_subplot(nplots, 1, 2)
-        gridsize = 50
-        offset = 10.0
-        visfilter = particlefilter.particlefilter(gridsize**2, 
-            np.identity(4), 0.0, 0.0, polemap, polecov)
-        gridcoord = np.linspace(-offset, offset, gridsize)
-        x, y = np.meshgrid(gridcoord, gridcoord)
-        dxy = np.hstack([x.reshape([-1, 1]), y.reshape([-1, 1])])
-        weightimage = weightaxes.matshow(np.zeros([gridsize, gridsize]), 
-            extent=(-offset, offset, -offset, offset))
+        # weightaxes = figure.add_subplot(nplots, 1, 2)
+        # gridsize = 50
+        # offset = 10.0
+        # visfilter = particlefilter.particlefilter(gridsize**2, 
+        #     np.identity(4), 0.0, 0.0, polemap, polecov)
+        # gridcoord = np.linspace(-offset, offset, gridsize)
+        # x, y = np.meshgrid(gridcoord, gridcoord)
+        # dxy = np.hstack([x.reshape([-1, 1]), y.reshape([-1, 1])])
+        # weightimage = weightaxes.matshow(np.zeros([gridsize, gridsize]), 
+        #     extent=(-offset, offset, -offset, offset))
         
         # histaxes = figure.add_subplot(nplots, 1, 3)
 
@@ -264,14 +278,14 @@ def localize(seq, visualize=False):
                     polepos_w = T_w_velo_est[i].dot(polepos_velo_now)
                     locpoles.set_offsets(polepos_w[:2].T)
 
-                    particleposes = np.tile(T_w_velo_gt[i], [gridsize**2, 1, 1])
-                    particleposes[:, :2, 3] += dxy
-                    visfilter.particles = particleposes
-                    visfilter.weights[:] = 1.0 / visfilter.count
-                    visfilter.update_measurement(poleparams[:, :2], resample=False)
-                    weightimage.set_array(np.flipud(
-                        visfilter.weights.reshape([gridsize, gridsize])))
-                    weightimage.autoscale()
+                    # particleposes = np.tile(T_w_velo_gt[i], [gridsize**2, 1, 1])
+                    # particleposes[:, :2, 3] += dxy
+                    # visfilter.particles = particleposes
+                    # visfilter.weights[:] = 1.0 / visfilter.count
+                    # visfilter.update_measurement(poleparams[:, :2], resample=False)
+                    # weightimage.set_array(np.flipud(
+                    #     visfilter.weights.reshape([gridsize, gridsize])))
+                    # weightimage.autoscale()
                 imap += 1
 
             if visualize:
@@ -283,6 +297,9 @@ def localize(seq, visualize=False):
                 # histaxes.cla()
                 # histaxes.hist(filter.weights, 
                 #     bins=50, range=(0.0, np.max(filter.weights)))
+                if i%15 ==0:
+                    filename = str(seq) +'_'+str(i) + '_'		
+                    figure.savefig(os.path.join(figuresdir, filename + '.png'))
                 figure.canvas.draw_idle()
                 figure.canvas.flush_events()
             bar.update(i)
@@ -296,11 +313,12 @@ def evaluate(seq):
     sequence = dataset.sequence(seq)
     T_w_velo_gt = np.matmul(sequence.poses, sequence.calib.T_cam0_velo)
     T_w_velo_gt = np.array([util.project_xy(ht) for ht in T_w_velo_gt])
-    seqdir = os.path.join('kitti', '{:03d}'.format(seq))
-    mapdata = np.load(os.path.join(seqdir, globalmapfile))
+    trajectory_dir = os.path.join(result_dir, '{:03d}'.format(seq),'trajectory')
+    util.makedirs(trajectory_dir)
+    mapdata = np.load(os.path.join(seqdir, globalmapfile), allow_pickle=True)
     polemap = mapdata['polemeans']
-    plt.scatter(polemap[:, 0], polemap[:, 1], s=1, c='b')
-    plt.plot(T_w_velo_gt[:, 0, 3], T_w_velo_gt[:, 1, 3], color=(0.5, 0.5, 0.5))
+    # plt.scatter(polemap[:, 0], polemap[:, 1], s=1, c='b')
+    # plt.plot(T_w_velo_gt[:, 0, 3], T_w_velo_gt[:, 1, 3], color=(0, 1, 0), label='Ground Truth', linewidth=3.0)
     cumdist = np.hstack([0.0, np.cumsum(np.linalg.norm(np.diff(
         T_w_velo_gt[:, :2, 3], axis=0), axis=1))])
     timestamps = np.array([arrow.get(timestamp).float_timestamp \
@@ -325,7 +343,11 @@ def evaluate(seq):
     T_gt_est = np.full([n, 4, 4], np.nan)
     for ifile in range(len(files)):
         T_w_velo_est = np.load(
-            os.path.join(seqdir, files[ifile]))['T_w_velo_est']
+            os.path.join(seqdir, files[ifile]), allow_pickle=True)['T_w_velo_est']
+        plt.clf()
+        plt.plot(T_w_velo_gt[:, 0, 3], T_w_velo_gt[:, 1, 3], color=(0, 1, 0), label='Ground Truth', linewidth=3.0)
+        landmarks = plt.scatter(polemap[:, 0], polemap[:, 1], 
+            s=1, c='m', marker='*', label='Landmarks')
         iodo = 1
         for ieval in range(n):
             while timestamps[iodo] < t_eval[ieval]:
@@ -339,7 +361,13 @@ def evaluate(seq):
         laterror[:, ifile] = T_gt_est[:, 1, 3]
         poserror[:, ifile] = np.linalg.norm(T_gt_est[:, :2, 3], axis=1)
         angerror[:, ifile] = util.ht2xyp(T_gt_est)[:, 2]
-        plt.plot(T_w_velo_est[:, 0, 3], T_w_velo_est[:, 1, 3], 'r')
+        plt.plot(T_w_velo_est[:, 0, 3], T_w_velo_est[:, 1, 3], 'r', label='Estimated trajectory')
+        plt.ylabel('North (Unit:m)')
+        plt.xlabel('East (Unit:m)')
+        plt.legend()
+        plt.gcf().subplots_adjust(
+                    bottom=0.13, top=0.98, left=0.145, right=0.98)
+        plt.grid(color=(0.5, 0.5, 0.5), linestyle='-', linewidth=1)
     angerror = np.degrees(angerror)
     lonstd = np.std(lonerror, axis=0)
     latstd = np.std(laterror, axis=0)
@@ -351,7 +379,8 @@ def evaluate(seq):
     angrmse = np.sqrt(np.mean(angerror ** 2, axis=0))
     poserror = np.mean(poserror, axis=0)
     angerror = np.mean(angerror, axis=0)
-    plt.savefig(os.path.join(seqdir, 'trajectory_est.svg'))
+    plt.savefig(os.path.join(trajectory_dir, 'trajectory_est.svg'))
+    plt.savefig(os.path.join(trajectory_dir, 'trajectory_est.png'))
     np.savez(os.path.join(seqdir, evalfile), 
         poserror=poserror, angerror=angerror, posrmse=posrmse, angrmse=angrmse,
         laterror=laterror, latstd=latstd, lonerror=lonerror, lonstd=lonstd)
@@ -366,7 +395,23 @@ def evaluate(seq):
 
 
 if __name__ == '__main__':
-    save_local_maps(13)
-    save_global_map(13)
-    localize(13, visualize=True)
-    evaluate(13)
+    seq = 0
+
+    ##Make local Maps
+    save_local_maps(seq)
+
+    ##Make globals map
+    save_global_map(seq)
+
+    ##Localization##
+    localize(seq, visualize=True)
+
+    ##Generate
+    seqdir = os.path.join(result_dir, '{:03d}'.format(seq))
+    gif_name = str(seq) + '.gif'
+    png_dir  = os.path.join(
+		seqdir, 'Figures')
+    mkgif.generate_gif(os.path.join(seqdir, gif_name), png_dir, dpi=90) 
+
+    ##Generate trajectory plots and evaluate
+    evaluate(seq)

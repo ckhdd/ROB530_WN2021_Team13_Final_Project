@@ -1,7 +1,5 @@
-#!/usr/bin/env python
 
 import os
-
 import numpy as np
 import open3d as o3
 import transforms3d as t3
@@ -33,7 +31,7 @@ def intensity2color(intensity):
 
 
 def xyp2ht(xyp):
-    ht = np.tile(np.identity(4), [xyp.size / 3, 1, 1])
+    ht = np.tile(np.identity(4), [int(xyp.size / 3), 1, 1])
     cp = np.cos(xyp[..., 2])
     sp = np.sin(xyp[..., 2])
     ht[..., :2, 3] = xyp[..., :2]
@@ -87,3 +85,8 @@ def makedirs(dir):
         os.makedirs(dir)
     except:
         pass
+
+
+
+
+

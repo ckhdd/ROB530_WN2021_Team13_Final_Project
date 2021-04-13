@@ -20,8 +20,8 @@ eulerdef = 'sxyz'
 
 # TODO: Modify these for your workspace
 csvdelimiter = ','
-datadir = '/home/kaicheng/ROB530_Final_Project_Team13/Localization/dataset/data/'
-resultdir = '/home/kaicheng/ROB530_Final_Project_Team13/Localization/dataset/nclt'
+datadir = '/app/dataset/nclt_data/'
+resultdir = '/app/dataset/nclt'
 snapshotfile = 'snapshot.npz'
 sessionfile = 'sessiondata.npz'
 
@@ -82,18 +82,18 @@ velodatasize = 8
 
 
 def load_snapshot(sessionname):
-    cloud = o3.PointCloud()
-    trajectory = o3.LineSet()
+    cloud = o3.geometry.PointCloud()
+    trajectory = o3.geometry.LineSet()
     with np.load(os.path.join(resultdir, sessionname, snapshotfile)) as data:
-        cloud.points = o3.Vector3dVector(data['points'])
-        cloud.colors = o3.Vector3dVector(
+        cloud.points = o3.utility.Vector3dVector(data['points'])
+        cloud.colors = o3.utility.Vector3dVector(
             util.intensity2color(data['intensities'] / 255.0))
         
-        trajectory.points = o3.Vector3dVector(data['trajectory'])
+        trajectory.points = o3.utility.Vector3dVector(data['trajectory'])
         lines = np.reshape(range(data['trajectory'].shape[0] - 1), [-1, 1]) \
                 + [0, 1]
-        trajectory.lines = o3.Vector2iVector(lines)
-        trajectory.colors = o3.Vector3dVector(
+        trajectory.lines = o3.utility.Vector2iVector(lines)
+        trajectory.colors = o3.utility.Vector3dVector(
             np.tile([0.0, 0.5, 0.0], [lines.shape[0], 1]))
     return cloud, trajectory
 
