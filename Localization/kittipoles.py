@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 
 import datetime
 import os
@@ -403,7 +402,7 @@ if __name__ == '__main__':
     # save_global_map(seq)
 
     ##Localization##
-    # localize(seq, visualize=True)
+    localize(seq, visualize=True)
 
     ##Generate
     seqdir = os.path.join(result_dir, '{:03d}'.format(seq))
