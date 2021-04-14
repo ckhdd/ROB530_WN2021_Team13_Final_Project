@@ -169,6 +169,7 @@ def plot_global_map(globalmapfile):
     plt.ylabel('North (Unit:m)')
     plt.xlabel('East (Unit:m)')
     plt.grid(color=(0.5, 0.5, 0.5), linestyle='-', linewidth=1)
+    plt.title('Landmarks Global Map')
     plt.savefig(globalmapfile[:-4] + '.svg')
     plt.savefig(globalmapfile[:-4] + '.png')
     # plt.savefig(globalmapfile[:-4] + '.pgf')
@@ -186,8 +187,8 @@ def save_local_maps(sessionname, visualize=False):
             scans = []
             for idx, val in enumerate(range(istart[i], iend[i])):
                 xyz, _ = session.get_velo(val)
-                scan = o3.geometry.PointCloud()
-                scan.points = o3.utility.Vector3dVector(xyz)
+                scan = o3.PointCloud()
+                scan.points = o3.Vector3dVector(xyz)
                 scans.append(scan)
 
             T_w_mc = util.project_xy(
@@ -201,7 +202,7 @@ def save_local_maps(sessionname, visualize=False):
             poleparams = poles.detect_poles(occupancymap, mapsize)
 
             if visualize:
-                cloud = o3.geometry.PointCloud()
+                cloud = o3.PointCloud()
                 for T, scan in zip(T_w_r, scans):
                     s = copy.copy(scan)
                     s.transform(T)
@@ -244,12 +245,12 @@ def view_local_maps(sessionname):
             pole.transform(map['T_w_m'].dot(T_m_p))
             polevis.append(pole)
 
-        accucloud = o3.geometry.PointCloud()
+        accucloud = o3.PointCloud()
         for j in range(map['istart'], map['iend']):
             points, intensities = session.get_velo(j)
-            cloud = o3.geometry.PointCloud()
-            cloud.points = o3.utility.Vector3dVector(points)
-            cloud.colors = o3.utility.Vector3dVector(
+            cloud = o3.PointCloud()
+            cloud.points = o3.Vector3dVector(points)
+            cloud.colors = o3.Vector3dVector(
                 util.intensity2color(intensities / 255.0))
             cloud.transform(session.T_w_r_odo_velo[j])
             accucloud.points.extend(cloud.points)
@@ -347,9 +348,10 @@ def localize(sessionname, visualize=False):
             relodocov[:2, :2] = session.relodocov[i, :2, :2]
             relodocov[:, 2] = session.relodocov[i, [0, 1, 5], 5]
             relodocov[2, :] = session.relodocov[i, 5, [0, 1, 5]]
-            filter.update_motion(session.relodo[i], relodocov * 2.0**2)
-            T_w_r_est[i] = filter.estimate_pose()
             t_now = session.t_relodo[i]
+            #filter.update_motion(session.relodo[i], relodocov * 2.0**2)
+            #filter.update_motion_improved(session.relodo[i], relodocov * 2.0**2, polepos_r_now[:2].T)
+            T_w_r_est[i] = filter.estimate_pose()
             if imap < locdata.shape[0]:
                 t_end = session.t_velo[locdata[imap]['iend']]
                 if t_now >= t_end:
@@ -374,14 +376,32 @@ def localize(sessionname, visualize=False):
                         T_r_now_r_mid = util.invert_ht(T_w_r_now).dot(T_w_r_mid)
                         polepos_r_now = T_r_now_r_mid.dot(T_r_m).dot(
                             polepos_m[imap][:, iactive])
+                        #filter.update_motion_improved(session.relodo[i], relodocov * 2.0**2, polepos_r_now[:2].T)
+                        #T_w_r_est[i] = filter.estimate_pose()
                         filter.update_measurement(polepos_r_now[:2].T)
+                        #filter.update_measurement_improved(polepos_r_now[:2].T)
+                        print('update_measurement_improved')
                         T_w_r_est[i] = filter.estimate_pose()
                         if visualize:
                             polepos_w_est = T_w_r_est[i].dot(polepos_r_now)
                             locpoles.set_offsets(polepos_w_est[:2].T)
+                    #else:
+                        #filter.update_motion(session.relodo[i], relodocov * 2.0**2)
+                        #print('update_motion2')
+                        #T_w_r_est[i] = filter.estimate_pose()
+                else:
+                    filter.update_motion(session.relodo[i], relodocov * 2.0**2)
+                    #print('update_motion3')
+                    T_w_r_est[i] = filter.estimate_pose()
+
 
                             
                     imap += 1
+            else:
+                filter.update_motion(session.relodo[i], relodocov * 2.0**2)
+                #print('update_motion4')
+                T_w_r_est[i] = filter.estimate_pose()
+
             
             if visualize:
                 particles.set_offsets(filter.particles[:, :2, 3])
@@ -433,6 +453,7 @@ def plot_trajectories():
                 plt.gcf().subplots_adjust(
                     bottom=0.13, top=0.98, left=0.145, right=0.98)
                 plt.grid(color=(0.5, 0.5, 0.5), linestyle='-', linewidth=1)
+                plt.title('Estimated Trajectory')
                 filename = sessionname + file[18:-4]
                 plt.savefig(os.path.join(trajectorydir, filename + '.svg'))
                 plt.savefig(os.path.join(trajectorydir, filename + '.png'))
@@ -508,12 +529,12 @@ if __name__ == '__main__':
     
     ###################################################################
     # Task 1
-    save_global_map()
+    #save_global_map()
     ###################################################################
     
     ###################################################################
     # Task 2
-    save_local_maps(session)
+    #save_local_maps(session)
     ###################################################################
     # Note: once the global map and the local map are generated, comment Task1 and Task2
     # to rerun the localization
@@ -521,18 +542,18 @@ if __name__ == '__main__':
     ###################################################################
     # Task 3
     # Set visualization to False/True
-    localize(session, True)
+    localize(session, False)
     plot_trajectories()
     
     ###################################################################
 
     ###################################################################
     # Task 4
-    gif_name = session + '.gif'
-    png_dir  = os.path.join(
-		pynclt.resultdir, session, 'Figures_{:.0f}_{:.0f}_{:.0f}'.format(
-                n_mapdetections, 10 * poles.minscore, poles.polesides[-1]))
-    mkgif.generate_gif(gif_name, png_dir, dpi=90) 
+    #gif_name = session + '.gif'
+    #png_dir  = os.path.join(
+	#	pynclt.resultdir, session, 'Figures_{:.0f}_{:.0f}_{:.0f}'.format(
+        #        n_mapdetections, 10 * poles.minscore, poles.polesides[-1]))
+    #mkgif.generate_gif(gif_name, png_dir, dpi=90) 
     ###################################################################
 
     ###################################################################
