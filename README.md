@@ -62,6 +62,7 @@ cmake .. && \
 make -j8 && \
 sudo make install
 ```
+
 3. Build ray-tracing and add new path to PYTHONPATH - clone it from our repo because we modified it to work with python3 and then build
 ```bash
 mkdir ray_tracing/build && \
@@ -75,17 +76,22 @@ echo PYTHONPATH=$PYTHONPATH:/home/yourusername/library/ray_tracing/python >> ~/.
 echo $PYTHONPATH
 (you should see /home/yourusername/library/ray_tracing/python has been added to $PYTHONPATH)
 ```
-## Modify the data path and session name in the pynclt.py and ncltpoles.py (see comments in these two files).
+## Modify the data path and session name in the datapreprocess.py and localizationnclt.py (see comments in these two files).
 1. ```git clone https://github.com/ckhdd/ROB530_WN2021_Team13_Final_Project.git  ```
-2. In pynclt.py, change variable 'datadir'(line 23) to the directory of your downloaded dataset
-3. In pynclt.py, comment out the seesions(line 30-56) you are not using. (In the provided exaple, we are using '2013-01-10') 
-4. In ncltpoles.py, replace '2021-03' in the variable 'localization_name_start'(line 31) to the yyyy-mm you are currently in.
-5. In ncltpoles.py, change the session(line 503) you are currently work on.
+2. In datapreprocess.py, change variable 'datadir'(line 23) to the directory of your downloaded dataset
+3. In datapreprocess.py, comment out the seesions(line 30-56) you are not using. (In the provided exaple, we are using '2013-01-10') 
+4. In localizationnclt.py, replace '2021-03' in the variable 'localization_name_start'(line 31) to the yyyy-mm you are currently in.
+5. In localizationnclt.py, change the session(line 503) you are currently work on.
 
 ## Run python file for localization on NCLT
 ```bash
-python localiztionnclt.py
+python3 localizationnclt.py
 ```
+## Modify the data path and session name in the kittidrives.py and kittipoles.py (see comments in these two files).
+1. In kittidrives.py, uncomment sequences based on what data you're using
+2. In kittipoles.py, modify 'dataset' path (line 21) with path to the directory containing kitti dataaset
+3. In kittipoles.py, modidy 'result_dir' (line 22) with path the output directory. Output files will be written here.
+4. In kittipoles.py, modify 'seq' (line 396) with index of the uncommented sequence in kittidrives.py
 
 ## Run python file for localization on KITTI
 ```bash
