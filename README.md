@@ -1,5 +1,8 @@
 # ROB530_WN2021_Team13_Final_Project
 Final project of ROB 530, Team 13
+
+This repository contains the Python code modified based on the polex library, which accompanies the paper "Long-Term Urban Vehicle Localization Using Pole Landmarks Extracted from 3-D Lidar Scans" submitted to the European Conference on Mobile Robots. 
+
 ![Particle-Filter on NCLT Dataset](https://github.com/ckhdd/ROB530_WN2021_Team13_Final_Project/blob/python3_update/Localization/2013-01-10.gif)
 
 ![Global map](https://github.com/ckhdd/ROB530_WN2021_Team13_Final_Project/blob/python3_update/results/2012-01-15/globalmap_3_6_7.png)
