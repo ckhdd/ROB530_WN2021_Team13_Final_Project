@@ -1,7 +1,7 @@
 # ROB530_WN2021_Team13_Final_Project
 Final project of ROB 530, Team 13
 
-This repository contains the Python code modified based on the polex library, which accompanies the paper "Long-Term Urban Vehicle Localization Using Pole Landmarks Extracted from 3-D Lidar Scans" submitted to the European Conference on Mobile Robots. 
+This repository contains the Python code modified based on the polex library, which accompanies the paper ["Long-Term Urban Vehicle Localization Using Pole Landmarks Extracted from 3-D Lidar Scans"](http://ais.informatik.uni-freiburg.de/publications/papers/schaefer19ecmr.pdf) submitted to the European Conference on Mobile Robots. 
 
 ![Particle-Filter on NCLT Dataset](https://github.com/ckhdd/ROB530_WN2021_Team13_Final_Project/blob/python3_update/Localization/2013-01-10.gif)
 
@@ -86,7 +86,7 @@ echo $PYTHONPATH
 4. In localizationnclt.py, replace '2021-03' in the variable 'localization_name_start'(line 31) to the yyyy-mm you are currently in.
 5. In localizationnclt.py, change the session(line 503) you are currently work on.
 
-## Run python file for localization on NCLT
+## Run python file for localization on [NCLT dataset](http://robots.engin.umich.edu/nclt/) Dataset
 ```bash
 python3 localizationnclt.py
 ```
@@ -96,7 +96,7 @@ python3 localizationnclt.py
 3. In kittipoles.py, modidy 'result_dir' (line 22) with path the output directory. Output files will be written here.
 4. In kittipoles.py, modify 'seq' (line 396) with index of the uncommented sequence in kittidrives.py
 
-## Run python file for localization on KITTI
+## Run python file for localization on [KITTI dataset](http://www.cvlibs.net/datasets/kitti/) Dataset
 ```bash
 python3 kittipoles.py
 ```
