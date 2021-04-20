@@ -24,8 +24,8 @@ class particlefilter:
         self.particles = np.matmul(start, util.xyp2ht(dxyp))
         self.xukf = np.zeros((3,1))
         self.particles_pre = np.matmul(start, util.xyp2ht(dxyp))
-        self.Pukf = 0.2*np.ones((count,3,3))
-        self.Poutt = np.ones((3,3))
+        self.Pukf = 0.2*np.expand_dims(np.eye(3),0).repeat(count,axis=0)
+        self.Poutt = np.expand_dims(np.eye(3),0).repeat(count,axis=0)
         
         self.weights = np.full(self.count, 1.0 / self.count)
         self.polemeans = polemeans
@@ -91,7 +91,7 @@ class particlefilter:
             self.weights[i] *= lik*prior/proposal
             
             self.particles_pre[i] = self.particles[i].copy()
-            self.Pukf[i,:,:] = self.Poutt.copy()
+            self.Pukf[i,:,:] = self.Poutt[i].copy()
         self.weights /= np.sum(self.weights)
         if resample and self.neff < self.minneff:
             self.resample()
@@ -141,19 +141,19 @@ class particlefilter:
             x_pred = self.motion(util.xyp2ht(xSigmaPts[:states,i].reshape(-1)), mean, cov) + xSigmaPts[states:states+vNoise,i]
             # xPredSigmaPts.append(util.ht2xyp(x_pred).reshape(3,1))
             xPredSigmaPts[:,i] = x_pred.reshape(states,1)
-            z_pred = self.measurement(x_pred, poleparams) + xSigmaPts[states+vNoise:states+noises,i] #(2*Nout,1)
+            z_pred = self.measurement(util.xyp2ht(x_pred), poleparams).reshape(-1) + xSigmaPts[states+vNoise:states+noises,i] #(2*Nout,1)
             # zPredSigmaPts.append(z_pred)
             zPredSigmaPts[:,i] = z_pred
         xPredSigmaPts = np.array(xPredSigmaPts) # (3,7)
         zPredSigmaPts = np.array(zPredSigmaPts) # (2*Nout,7)
         
-        xPred = np.sum(wSigmaPts_xmat * (xPredSigmaPts[:,1:nsp] - np.tile(xPredSigmaPts[:,0],(1,nsp-1))), axis=1).reshape(-1,1) # (3,1)
-        zPred = np.sum(wSigmaPts_zmat * (zPredSigmaPts[:,1:nsp] - np.tile(zPredSigmaPts[:,0],(1,nsp-1))), axis=1).reshape(-1,1) # (2*Nout,1)
-        xPred = xPred + xPredSigmaPts[:,0]
-        zPred = zPred + zPredSigmaPts[:,0]
+        xPred = np.sum(wSigmaPts_xmat * (xPredSigmaPts[:,1:nsp] - np.tile(xPredSigmaPts[:,0].reshape(-1,1),(1,nsp-1))), axis=1).reshape(-1,1) # (3,1)
+        zPred = np.sum(wSigmaPts_zmat * (zPredSigmaPts[:,1:nsp] - np.tile(zPredSigmaPts[:,0].reshape(-1,1),(1,nsp-1))), axis=1).reshape(-1,1) # (2*Nout,1)
+        xPred = xPred + xPredSigmaPts[:,0].reshape(-1,1)
+        zPred = zPred + zPredSigmaPts[:,0].reshape(-1,1)
         
-        exSigmaPt = xPredSigmaPts[:,0] - xPred;
-        ezSigmaPt = zPredSigmaPts[:,0] - zPred;
+        exSigmaPt = xPredSigmaPts[:,0].reshape(-1,1) - xPred;
+        ezSigmaPt = zPredSigmaPts[:,0].reshape(-1,1) - zPred;
         
         PPred = wSigmaPts[nsp] * exSigmaPt.dot(exSigmaPt.T)
         PxzPred = wSigmaPts[nsp] * exSigmaPt.dot(ezSigmaPt.T)
