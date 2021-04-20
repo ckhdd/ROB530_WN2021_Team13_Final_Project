@@ -11,10 +11,10 @@ This repository contains the Python code modified based on the polex library, wh
 # Prerequisites and setting up environment
 ## Anaconda3
 
-1. create a anaconda environment with python version=2.7 and activate it 
+1. create a anaconda environment with python version=3.6 and activate it 
 ```bash
-conda create -n py3 python=3.6 anaconda
-conda activate py3
+conda create -n py36 python=3.6 anaconda
+conda activate py36
 ```
 2. Install the following pakage with pip in anaconda and check if they are installed correctly
 ```bash
