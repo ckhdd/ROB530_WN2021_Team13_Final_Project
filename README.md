@@ -101,3 +101,4 @@ python3 localizationnclt.py
 python3 kittipoles.py
 ```
 
+Our final report and our video can be found [here](https://github.com/ckhdd/ROB530_WN2021_Team13_Final_Project/blob/python3_update/ROB530REPORT.pdf) and [here](https://www.youtube.com/watch?v=CuiC2SQZL1o).
